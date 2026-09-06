@@ -1,0 +1,52 @@
+name: Build latest static Git
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/build-static-git.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find latest Git release
+        id: git-version
+        run: |
+          version=$(git ls-remote --tags --refs https://github.com/git/git.git 'refs/tags/v[0-9]*' | sed 's#.*refs/tags/v##' | sort -V | tail -n 1)
+          test -n "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Pull Alpine image
+        run: docker pull alpine:latest
+
+      - name: Build in a new Alpine container
+        env:
+          GIT_VERSION: ${{ steps.git-version.outputs.version }}
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/work" \
+            -e GIT_VERSION="$GIT_VERSION" \
+            alpine:latest sh -euxc '
+              apk add --no-cache build-base linux-headers cargo perl autoconf pkgconf zlib-dev wget
+              cd /work
+              wget -q "https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz"
+              tar -xzf "git-${GIT_VERSION}.tar.gz"
+              cd "git-${GIT_VERSION}"
+              make_flags="NO_CURL=YesPlease NO_REGEX=NeedsStartEnd NO_TCLTK=YesPlease NO_PERL=YesPlease NO_PYTHON=YesPlease NO_GETTEXT=YesPlease NO_INSTALL_HARDLINKS=YesPlease NO_R_TO_GIT=YesPlease LDFLAGS=-static\ -no-pie prefix=/opt/git-static"
+              make -j"$(getconf _NPROCESSORS_ONLN || echo 2)" $make_flags all
+              rm -rf /opt/git-static
+              make $make_flags install
+              file /opt/git-static/bin/git
+              ldd /opt/git-static/bin/git 2>&1 | tee /tmp/ldd.txt || true
+              ! grep -qE "=>|not found" /tmp/ldd.txt
+              /opt/git-static/bin/git --version
+              tar -C /opt -czf "/work/git-${GIT_VERSION}-alpine-static.tar.gz" git-static
+            '
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: git-${{ steps.git-version.outputs.version }}-alpine-static
+          path: git-${{ steps.git-version.outputs.version }}-alpine-static.tar.gz
+          if-no-files-found: error
