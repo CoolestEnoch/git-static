@@ -34,7 +34,8 @@ jobs:
                 ca-certificates curl-dev curl-static openssl-dev openssl-libs-static \
                 zlib-dev zlib-static brotli-dev brotli-static \
                 libidn2-dev libidn2-static libpsl-dev libpsl-static \
-                nghttp2-dev nghttp2-static zstd-dev zstd-static wget
+                nghttp2-dev nghttp2-static zstd-dev zstd-static \
+                expat-dev expat-static wget
               update-ca-certificates
               cd /work
               wget -q "https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz"
