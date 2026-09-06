@@ -32,7 +32,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/work" \
             -e GIT_VERSION="$GIT_VERSION" \
             alpine:latest sh -euxc '
-              apk add --no-cache build-base linux-headers cargo perl autoconf pkgconf zlib-dev wget
+              apk add --no-cache build-base linux-headers cargo perl autoconf pkgconf openssl-dev zlib-dev wget
               cd /work
               wget -q "https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz"
               tar -xzf "git-${GIT_VERSION}.tar.gz"
