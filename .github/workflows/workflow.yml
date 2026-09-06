@@ -3,8 +3,6 @@ name: Build latest static Git
 on:
   workflow_dispatch:
   push:
-    paths:
-      - ".github/workflows/workflow.yaml"
 
 jobs:
   build:
@@ -75,3 +73,4 @@ jobs:
           name: git-${{ steps.git-version.outputs.version }}-alpine-static
           path: git-${{ steps.git-version.outputs.version }}-alpine-static.tar.gz
           if-no-files-found: error
+*** Delete File: workflow.yaml
