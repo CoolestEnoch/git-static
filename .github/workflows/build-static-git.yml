@@ -13,7 +13,11 @@ jobs:
       - name: Find latest Git release
         id: git-version
         run: |
-          version=$(git ls-remote --tags --refs https://github.com/git/git.git 'refs/tags/v[0-9]*' | sed 's#.*refs/tags/v##' | sort -V | tail -n 1)
+          version=$(git ls-remote --tags --refs https://github.com/git/git.git 'refs/tags/v[0-9]*' \
+            | sed 's#.*refs/tags/v##' \
+            | grep -E '^[0-9]+(\.[0-9]+)+$' \
+            | sort -V \
+            | tail -n 1)
           test -n "$version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
