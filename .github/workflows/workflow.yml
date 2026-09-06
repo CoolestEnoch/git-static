@@ -34,6 +34,7 @@ jobs:
                 ca-certificates curl-dev curl-static openssl-dev openssl-libs-static \
                 zlib-dev zlib-static brotli-dev brotli-static \
                 libidn2-dev libidn2-static libpsl-dev libpsl-static \
+                libunistring-dev libunistring-static \
                 nghttp2-dev nghttp2-static zstd-dev zstd-static \
                 expat-dev expat-static wget
               update-ca-certificates
@@ -41,7 +42,7 @@ jobs:
               wget -q "https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz"
               tar -xzf "git-${GIT_VERSION}.tar.gz"
               cd "git-${GIT_VERSION}"
-              curl_libs="$(curl-config --static-libs)"
+              curl_libs="$(pkg-config --static --libs libcurl)"
               make -j"$(getconf _NPROCESSORS_ONLN || echo 2)" \
                 NO_REGEX=NeedsStartEnd CURL_LIBCURL="$curl_libs" \
                 NO_TCLTK=YesPlease NO_PERL=YesPlease NO_PYTHON=YesPlease \
