@@ -32,7 +32,8 @@ jobs:
             -v "$GITHUB_WORKSPACE:/work" \
             -e GIT_VERSION="$GIT_VERSION" \
             alpine:latest sh -euxc '
-              apk add --no-cache build-base linux-headers cargo perl autoconf pkgconf openssl-dev zlib-dev wget
+              apk add --no-cache build-base linux-headers cargo perl autoconf pkgconf \
+                openssl-dev openssl-libs-static zlib-dev zlib-static wget
               cd /work
               wget -q "https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz"
               tar -xzf "git-${GIT_VERSION}.tar.gz"
@@ -42,7 +43,7 @@ jobs:
                 NO_TCLTK=YesPlease NO_PERL=YesPlease NO_PYTHON=YesPlease \
                 NO_GETTEXT=YesPlease NO_INSTALL_HARDLINKS=YesPlease \
                 NO_R_TO_GIT=YesPlease LDFLAGS="-static -no-pie" \
-                prefix=/opt/git-static all
+                prefix=/opt/git-static git
               test -x git
               file git
               ldd git 2>&1 | tee /tmp/ldd.txt || true
